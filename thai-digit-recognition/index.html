@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Thai Digit Recognizer</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind (CDN) — CDN must load first, then config is applied -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            ink: {
+              950: '#0A1B33',
+              900: '#0F2A4A',
+              800: '#16365E',
+              700: '#1F4A7E',
+              500: '#3D6BA3',
+              300: '#9DB3CD',
+            },
+            paper: {
+              50:  '#FAFBFC',
+              100: '#F4F6FA',
+              200: '#E7ECF3',
+            },
+            accent: {
+              DEFAULT: '#FFB020',
+              soft:    '#FFF4DC',
+            },
+          },
+          fontFamily: {
+            sans: ['Sarabun', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+          boxShadow: {
+            card: '0 1px 2px rgba(15,42,74,0.04), 0 8px 24px rgba(15,42,74,0.06)',
+            pop:  '0 1px 2px rgba(15,42,74,0.05), 0 16px 40px rgba(15,42,74,0.10)',
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Custom CSS (animations, canvas rules, base typography) -->
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- React + Babel (CDN — swap these for a build tool when the project grows) -->
+  <script
+    src="https://unpkg.com/react@18.3.1/umd/react.development.js"
+    integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"
+    integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm"
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js"
+    integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y"
+    crossorigin="anonymous"
+  ></script>
+
+  <!--
+    Load order matters — each file may reference globals defined in earlier files.
+    Plain JS first, then JSX components (Babel), then pages, then the App root.
+  -->
+
+  <!-- 1. Shared constants (CLASSES, ARABIC, COLLECTION_TARGET) -->
+  <script src="src/constants.js"></script>
+
+  <!-- 2. Mock API helpers (mockPredict, mockSaveSample, mockUploadModel) -->
+  <script src="src/utils/mockApi.js"></script>
+
+  <!-- 3. Shared UI components (no inter-component dependencies) -->
+  <script type="text/babel" data-presets="react" src="src/components/Stat.jsx"></script>
+  <script type="text/babel" data-presets="react" src="src/components/ProbBar.jsx"></script>
+  <script type="text/babel" data-presets="react" src="src/components/Toast.jsx"></script>
+  <script type="text/babel" data-presets="react" src="src/components/DrawingCanvas.jsx"></script>
+  <script type="text/babel" data-presets="react" src="src/components/Nav.jsx"></script>
+
+  <!-- 4. Page-level components (depend on shared components above) -->
+  <script type="text/babel" data-presets="react" src="src/pages/UserPage.jsx"></script>
+  <script type="text/babel" data-presets="react" src="src/pages/CollectPage.jsx"></script>
+  <script type="text/babel" data-presets="react" src="src/pages/AdminPage.jsx"></script>
+
+  <!-- 5. App root — mounts React -->
+  <script type="text/babel" data-presets="react" src="src/App.jsx"></script>
+</body>
+</html>
