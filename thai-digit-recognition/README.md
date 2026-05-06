@@ -1,6 +1,6 @@
 # Thai Digit Recognizer
 
-Web app สำหรับจดจำเลขไทยลายมือเขียน (๑๑–๑๕) ด้วย Machine Learning
+Web app สำหรับจดจำเลขไทยลายมือเขียน (๑๖–๒๐) ด้วย Machine Learning
 สร้างด้วย React + Tailwind CSS แบบไม่ต้องมี build tool
 
 ---

@@ -22,7 +22,7 @@ function CollectPage() {
     // Real call:
     // const load = async () => { const r = await fetch('/sample-stats'); setStats(await r.json()); };
     // load();
-    setStats({ '๑๑': 12, '๑๒': 8, '๑๓': 15, '๑๔': 5, '๑๕': 10 });
+    setStats({ '๑๖': 12, '๑๗': 8, '๑๘': 15, '๑๙': 5, '๒๐': 10 });
   }, []);
 
   const handleSave = async () => {
@@ -99,7 +99,7 @@ function CollectPage() {
         <div className="bg-white rounded-2xl shadow-card p-6 w-fit">
           <div className="flex items-center justify-between mb-4 gap-6">
             <div className="text-sm font-medium text-ink-900">บันทึกตัวอย่าง</div>
-            <div className="font-mono text-[11px] text-ink-500">280 × 280 px</div>
+            <div className="font-mono text-[11px] text-ink-500">400 × 400 px</div>
           </div>
 
           {/* Label selector */}
