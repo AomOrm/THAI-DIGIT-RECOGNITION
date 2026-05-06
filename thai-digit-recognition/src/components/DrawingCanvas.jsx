@@ -72,9 +72,9 @@ function DrawingCanvas({ onChange }, ref) {
 
       <canvas
         ref={canvasRef}
-        width={280}
-        height={280}
-        className="relative block w-[280px] h-[280px] rounded-2xl border border-paper-200 bg-white cursor-crosshair"
+        width={400}
+        height={400}
+        className="relative block w-[400px] h-[400px] rounded-2xl border border-paper-200 bg-white cursor-crosshair"
         onMouseDown={handleStart}
         onMouseMove={handleMove}
         onMouseUp={handleEnd}

@@ -55,7 +55,7 @@ function UserPage({ modelInfo }) {
             เขียนเลขไทย เพื่อให้โมเดลทำนาย
           </h1>
           <p className="text-ink-500 mt-1.5">
-            รองรับเลข ๑๑, ๑๒, ๑๓, ๑๔, ๑๕ — เขียนแล้วกด{' '}
+            รองรับเลข ๑๖, ๑๗, ๑๘, ๑๙, ๒๐ — เขียนแล้วกด{' '}
             <kbd className="px-1.5 py-0.5 bg-paper-100 rounded font-mono text-[11px] border border-paper-200">Enter</kbd>
             {' '}หรือปุ่มทำนาย
           </p>
@@ -75,7 +75,7 @@ function UserPage({ modelInfo }) {
         <div className="bg-white rounded-2xl shadow-card p-6 w-fit">
           <div className="flex items-center justify-between mb-4">
             <div className="text-sm font-medium text-ink-900">พื้นที่เขียน</div>
-            <div className="font-mono text-[11px] text-ink-500">280 × 280 px</div>
+            <div className="font-mono text-[11px] text-ink-500">400 × 400 px</div>
           </div>
 
           <CanvasFwd ref={canvasRef} onChange={setHasInk} />

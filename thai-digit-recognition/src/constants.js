@@ -1,13 +1,13 @@
-// Thai digit classes recognised by the model (๑๑–๑๕ = 11–15)
-const CLASSES = ['๑๑', '๑๒', '๑๓', '๑๔', '๑๕'];
+// Thai digit classes recognised by the model (๑๖–๒๐ = 16–20)
+const CLASSES = ['๑๖', '๑๗', '๑๘', '๑๙', '๒๐'];
 
 // Mapping from Thai numeral string to its Arabic equivalent
 const ARABIC = {
-  '๑๑': '11',
-  '๑๒': '12',
-  '๑๓': '13',
-  '๑๔': '14',
-  '๑๕': '15',
+  '๑๖': '16',
+  '๑๗': '17',
+  '๑๘': '18',
+  '๑๙': '19',
+  '๒๐': '20',
 };
 
 // Number of samples to collect per class in the dataset collection tab
