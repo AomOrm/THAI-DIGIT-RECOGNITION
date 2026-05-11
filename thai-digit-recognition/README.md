@@ -1,7 +1,7 @@
 # Thai Digit Recognizer
 
 Web app สำหรับจดจำเลขไทยลายมือเขียน (๑๖–๒๐) ด้วย Machine Learning
-สร้างด้วย React + Tailwind CSS แบบไม่ต้องมี build tool
+สร้างด้วย React + Tailwind CSS แบบไม่ต้องมี build tool และมี Python/FastAPI backend สำหรับเก็บข้อมูล, train model, และ inference
 
 ---
 
@@ -10,12 +10,19 @@ Web app สำหรับจดจำเลขไทยลายมือเข
 ```
 thai-digit-recognition/
 ├── index.html              ← entry point (โหลดทุกไฟล์ตามลำดับ)
+├── backend/                ← FastAPI endpoints + image preprocessing + model loading
+├── scripts/
+│   └── train_model.py      ← train classifier จาก data/samples แล้ว export .joblib
+├── data/
+│   └── samples/            ← dataset ที่เก็บจากหน้าเว็บ แยกตาม label
+├── models/                 ← active model + uploaded/trained model files
+├── requirements.txt        ← Python dependencies
 ├── styles/
 │   └── main.css            ← CSS หลัก: base, animations, canvas
 └── src/
     ├── constants.js        ← CLASSES, ARABIC, COLLECTION_TARGET
     ├── utils/
-    │   └── mockApi.js      ← mock functions (แทนที่ด้วย fetch จริง)
+    │   └── api.js          ← API helpers สำหรับเรียก backend
     ├── components/
     │   ├── Nav.jsx         ← top navigation + tab switcher
     │   ├── DrawingCanvas.jsx ← canvas วาดเลข (expose ref)
@@ -31,24 +38,41 @@ thai-digit-recognition/
 
 ---
 
-## วิธีรัน
+## วิธีรันแบบมี Backend
 
-โปรเจคนี้ใช้ Babel Standalone โหลดไฟล์ JSX ผ่าน HTTP
-**ต้องรันผ่าน local server เท่านั้น** (เปิดตรงจาก `file://` จะไม่ทำงาน)
+ติดตั้ง dependencies:
 
-### วิธีที่ 1 — VS Code Live Server
-ติดตั้ง extension **Live Server** แล้วคลิกขวาที่ `index.html` → **Open with Live Server**
-
-### วิธีที่ 2 — Python
 ```bash
-python -m http.server 8000
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
-แล้วเปิด `http://localhost:8000`
 
-### วิธีที่ 3 — Node.js
+รันแอป:
+
 ```bash
-npx serve .
+uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 ```
+
+แล้วเปิด `http://127.0.0.1:8000`
+
+> โปรเจคนี้ใช้ Babel Standalone โหลดไฟล์ JSX ผ่าน HTTP จึงต้องรันผ่าน local server เท่านั้น
+
+---
+
+## Workflow ทำ Model
+
+1. เปิดหน้าเว็บที่ `http://127.0.0.1:8000`
+2. ไปแท็บ **เก็บข้อมูล** แล้วเก็บตัวอย่างให้ครบหลายๆ class
+3. train model:
+
+```bash
+python scripts/train_model.py
+```
+
+4. กลับไปแท็บ **ทำนาย** แล้วลองวาดเลขเพื่อ inference
+
+สคริปต์ train จะอ่านรูปจาก `data/samples/<label>/*.png`, preprocess เป็นภาพ 28×28, train `KNeighborsClassifier`, บันทึกเป็น `models/thai_digit_knn.joblib`, และตั้งเป็น active model อัตโนมัติ
 
 ---
 
@@ -62,40 +86,22 @@ npx serve .
 
 ---
 
-## เชื่อมต่อ Backend จริง
+## Backend API
 
-ตอนนี้ทุก API call เป็น mock อยู่ใน `src/utils/mockApi.js`
-เมื่อ backend พร้อม ให้แทนที่แต่ละฟังก์ชันด้วย `fetch()` จริง:
+frontend เรียก endpoint เหล่านี้ผ่าน `src/utils/api.js`:
 
-```js
-// src/utils/mockApi.js
+| Method | Path | ใช้ทำอะไร |
+|--------|------|-----------|
+| GET | `/health` | health check |
+| GET | `/model` | active model ปัจจุบัน |
+| GET | `/models` | รายการโมเดลทั้งหมด |
+| POST | `/models/activate` | สลับ active model |
+| POST | `/predict` | ทำนายจาก canvas data URL |
+| POST | `/save-sample` | บันทึกตัวอย่าง training |
+| GET | `/sample-stats` | จำนวนตัวอย่างต่อ class |
+| POST | `/upload-model` | อัปโหลดโมเดล `.joblib`, `.pkl`, `.h5`, `.pt` |
 
-async function mockPredict(dataUrl) {
-  const res = await fetch('/predict', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image: dataUrl }),
-  });
-  return res.json();
-}
-
-async function mockSaveSample(label, dataUrl) {
-  await fetch('/save-sample', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ image: dataUrl, label }),
-  });
-  return (await fetch('/sample-stats')).json();
-}
-
-async function mockUploadModel(file) {
-  const fd = new FormData();
-  fd.append('model', file);
-  await fetch('/upload-model', { method: 'POST', body: fd });
-}
-```
-
-แต่ละ page ที่เรียกใช้ mock function อยู่แล้ว ไม่ต้องแก้ที่อื่น
+หมายเหตุ: backend ปัจจุบันรัน inference ได้กับ `.joblib` และ `.pkl` ที่เป็น scikit-learn model ส่วน `.h5` และ `.pt` รับอัปโหลดได้ แต่ต้องเพิ่ม runtime loader เฉพาะ TensorFlow/PyTorch ก่อนจึงจะใช้ทำนายได้
 
 ---
 

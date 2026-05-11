@@ -16,10 +16,10 @@ function UserPage({ modelInfo }) {
     }
     setLoading(true);
     try {
-      await new Promise((r) => setTimeout(r, 550 + Math.random() * 350));
-      setResult(mockPredict());
-    } catch {
-      setError('เกิดข้อผิดพลาดในการเรียกใช้โมเดล');
+      const dataUrl = canvasRef.current.toDataURL();
+      setResult(await apiPredict(dataUrl));
+    } catch (err) {
+      setError(err.message || 'เกิดข้อผิดพลาดในการเรียกใช้โมเดล');
     } finally {
       setLoading(false);
     }
@@ -168,7 +168,7 @@ function UserPage({ modelInfo }) {
                 </div>
                 <div className="space-y-3">
                   {CLASSES.map((c) => (
-                    <ProbBar key={c} label={c} value={result.all_probs[c]} isWinner={c === winner} />
+                    <ProbBar key={c} label={c} value={result.all_probs[c] || 0} isWinner={c === winner} />
                   ))}
                 </div>
               </div>

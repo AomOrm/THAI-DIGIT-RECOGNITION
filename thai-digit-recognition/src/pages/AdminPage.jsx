@@ -1,15 +1,12 @@
 // Model management page: view the active model, upload a new one, and activate historical models.
 function AdminPage({ modelInfo, setModelInfo }) {
-  const { useState, useRef } = React;
+  const { useState, useRef, useEffect } = React;
 
-  const [pending,  setPending]  = useState(null); // { file, accuracy }
+  const [pending,  setPending]  = useState(null); // { file }
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [toast,    setToast]    = useState(null);
-  const [history,  setHistory]  = useState([
-    { name: 'baseline_logreg.pkl', date: '2026-04-12', accuracy: 0.812, size: 184 },
-    { name: 'svm_rbf_v2.pkl',      date: '2026-04-21', accuracy: 0.864, size: 412 },
-  ]);
+  const [history,  setHistory]  = useState([]);
   const inputRef = useRef(null);
 
   const showToast = (kind, msg) => {
@@ -19,6 +16,16 @@ function AdminPage({ modelInfo, setModelInfo }) {
 
   const ALLOWED_EXTENSIONS = ['.h5', '.pkl', '.joblib', '.pt'];
   const MAX_SIZE_MB = 50;
+
+  const refreshModels = async () => {
+    const data = await apiLoadModels();
+    setModelInfo(data.active);
+    setHistory(data.models.filter((m) => m.name !== data.active.name));
+  };
+
+  useEffect(() => {
+    refreshModels().catch(() => showToast('error', 'โหลดรายการโมเดลไม่สำเร็จ'));
+  }, []);
 
   const validateFile = (file) => {
     const isValidType = ALLOWED_EXTENSIONS.some((ext) =>
@@ -37,8 +44,7 @@ function AdminPage({ modelInfo, setModelInfo }) {
 
   const handleFile = (file) => {
     if (!validateFile(file)) return;
-    const accuracy = 0.78 + Math.random() * 0.18;
-    setPending({ file, accuracy });
+    setPending({ file });
   };
 
   const onDrop = (e) => {
@@ -52,28 +58,33 @@ function AdminPage({ modelInfo, setModelInfo }) {
     if (!pending) return;
     setUploading(true);
     try {
-      await new Promise((r) => setTimeout(r, 900));
-      const newInfo = mockUploadModel(pending.file);
-      setHistory((h) => [{ ...modelInfo }, ...h.filter((x) => x.name !== modelInfo.name)]);
+      const newInfo = await apiUploadModel(pending.file);
       setModelInfo(newInfo);
+      await refreshModels();
       setPending(null);
       showToast('ok', `เปลี่ยนโมเดลเป็น ${newInfo.name} แล้ว`);
-    } catch {
-      showToast('error', 'อัปโหลดล้มเหลว');
+    } catch (err) {
+      showToast('error', err.message || 'อัปโหลดล้มเหลว');
     } finally {
       setUploading(false);
     }
   };
 
-  const activate = (m) => {
-    setHistory((h) => [{ ...modelInfo }, ...h.filter((x) => x.name !== m.name)]);
-    setModelInfo(m);
-    showToast('ok', `เปิดใช้งานโมเดล ${m.name}`);
+  const activate = async (m) => {
+    try {
+      const next = await apiActivateModel(m.name);
+      setModelInfo(next);
+      await refreshModels();
+      showToast('ok', `เปิดใช้งานโมเดล ${m.name}`);
+    } catch (err) {
+      showToast('error', err.message || 'เปิดใช้งานโมเดลไม่สำเร็จ');
+    }
   };
 
   // Color-codes accuracy: green ≥ 90 %, neutral ≥ 80 %, amber below.
   const accColor = (a) =>
-    a >= 0.9 ? 'text-emerald-600' : a >= 0.8 ? 'text-ink-900' : 'text-amber-600';
+    a == null ? 'text-ink-300' : a >= 0.9 ? 'text-emerald-600' : a >= 0.8 ? 'text-ink-900' : 'text-amber-600';
+  const accText = (a) => a == null ? '-' : `${(a * 100).toFixed(1)}%`;
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
@@ -113,7 +124,7 @@ function AdminPage({ modelInfo, setModelInfo }) {
             <div className="flex-1 min-w-0">
               <div className="font-mono text-sm text-ink-900 truncate">{modelInfo.name}</div>
               <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-paper-200">
-                <Stat label="Accuracy" value={`${(modelInfo.accuracy * 100).toFixed(1)}%`} highlight={accColor(modelInfo.accuracy)} />
+                <Stat label="Accuracy" value={accText(modelInfo.accuracy)} highlight={accColor(modelInfo.accuracy)} />
                 <Stat label="Size"     value={`${modelInfo.size} KB`} />
                 <Stat label="Uploaded" value={modelInfo.date} mono />
               </div>
@@ -165,7 +176,7 @@ function AdminPage({ modelInfo, setModelInfo }) {
                 <div className="min-w-0">
                   <div className="font-mono text-sm text-ink-900 truncate">{pending.file.name}</div>
                   <div className="text-xs text-ink-500 mt-0.5 font-mono">
-                    {(pending.file.size / 1024).toFixed(0)} KB · est. accuracy {(pending.accuracy * 100).toFixed(1)}%
+                    {(pending.file.size / 1024).toFixed(0)} KB
                   </div>
                 </div>
                 <button
@@ -229,7 +240,7 @@ function AdminPage({ modelInfo, setModelInfo }) {
                   <td className="px-6 py-3 font-mono text-sm text-ink-900">{m.name}</td>
                   <td className="px-6 py-3 font-mono text-sm text-ink-500">{m.date}</td>
                   <td className={`px-6 py-3 text-right font-mono text-sm tabular-nums ${accColor(m.accuracy)}`}>
-                    {(m.accuracy * 100).toFixed(1)}%
+                    {accText(m.accuracy)}
                   </td>
                   <td className="px-6 py-3 text-right font-mono text-sm text-ink-500 tabular-nums">
                     {m.size} KB

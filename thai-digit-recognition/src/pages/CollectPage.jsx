@@ -19,10 +19,14 @@ function CollectPage() {
 
   // Load initial sample counts from the backend on mount.
   useEffect(() => {
-    // Real call:
-    // const load = async () => { const r = await fetch('/sample-stats'); setStats(await r.json()); };
-    // load();
-    setStats({ '๑๖': 12, '๑๗': 8, '๑๘': 15, '๑๙': 5, '๒๐': 10 });
+    const load = async () => {
+      try {
+        setStats(await apiLoadSampleStats());
+      } catch {
+        setError('โหลดสถิติตัวอย่างไม่สำเร็จ');
+      }
+    };
+    load();
   }, []);
 
   const handleSave = async () => {
@@ -33,14 +37,15 @@ function CollectPage() {
     }
     setSaving(true);
     try {
-      await new Promise((r) => setTimeout(r, 350));
-      const updated = mockSaveSample(label, stats);
+      const dataUrl = canvasRef.current.toDataURL();
+      const updated = await apiSaveSample(label, dataUrl);
       setStats(updated);
       canvasRef.current?.clear();
       showToast('ok', `บันทึก ${label} แล้ว — ตัวอย่างที่ ${updated[label]}`);
-    } catch {
-      setError('บันทึกไม่สำเร็จ');
-      showToast('error', 'บันทึกไม่สำเร็จ');
+    } catch (err) {
+      const msg = err.message || 'บันทึกไม่สำเร็จ';
+      setError(msg);
+      showToast('error', msg);
     } finally {
       setSaving(false);
     }
