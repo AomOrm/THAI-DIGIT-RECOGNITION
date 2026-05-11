@@ -1,5 +1,7 @@
 # Thai Digit Recognition Training Metrics
 
+![Thai Digit Recognition Metrics](training_metrics.png)
+
 Date: 2026-05-11
 
 ## Dataset
