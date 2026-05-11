@@ -99,16 +99,24 @@ def save_uploaded_model(src_path: Path, filename: str) -> dict:
     return set_active_model(dest.name)
 
 
-def save_trained_metadata(model_path: Path, accuracy: float, samples: int) -> None:
+def save_trained_metadata(
+    model_path: Path,
+    accuracy: float,
+    samples: int,
+    algorithm: Optional[str] = None,
+    activate: bool = True,
+) -> None:
     metadata = {
         "date": _now_date(),
         "accuracy": accuracy,
         "samples": samples,
         "runnable": model_path.suffix.lower() in RUNNABLE_MODEL_SUFFIXES,
     }
+    if algorithm:
+        metadata["algorithm"] = algorithm
     with _metadata_path(model_path).open("w", encoding="utf-8") as f:
         json.dump(metadata, f, ensure_ascii=False, indent=2)
-    if model_path.parent.resolve() == MODELS_DIR.resolve():
+    if activate and model_path.parent.resolve() == MODELS_DIR.resolve():
         save_active_metadata(model_info(model_path, accuracy=accuracy))
 
 

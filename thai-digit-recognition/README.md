@@ -1,7 +1,7 @@
 # Thai Digit Recognizer
 
 Web app สำหรับจดจำเลขไทยลายมือเขียน (๑๖–๒๐) ด้วย Machine Learning
-สร้างด้วย React + Tailwind CSS แบบไม่ต้องมี build tool และมี Python/FastAPI backend สำหรับเก็บข้อมูล, train model, และ inference
+สร้างด้วย React + Tailwind CSS แบบไม่ต้องมี build tool และมี Python/FastAPI backend สำหรับเก็บข้อมูล, train หลายโมเดลจาก dataset ชุดเดียว, และ inference
 
 ---
 
@@ -12,7 +12,7 @@ thai-digit-recognition/
 ├── index.html              ← entry point (โหลดทุกไฟล์ตามลำดับ)
 ├── backend/                ← FastAPI endpoints + image preprocessing + model loading
 ├── scripts/
-│   └── train_model.py      ← train classifier จาก data/samples แล้ว export .joblib
+│   └── train_model.py      ← train classifiers จาก data/samples แล้ว export .joblib
 ├── data/
 │   └── samples/            ← dataset ที่เก็บจากหน้าเว็บ แยกตาม label
 ├── models/                 ← active model + uploaded/trained model files
@@ -64,15 +64,40 @@ uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 
 1. เปิดหน้าเว็บที่ `http://127.0.0.1:8000`
 2. ไปแท็บ **เก็บข้อมูล** แล้วเก็บตัวอย่างให้ครบหลายๆ class
-3. train model:
+3. train หลายโมเดลจาก dataset ชุดเดียว:
 
 ```bash
 python scripts/train_model.py
 ```
 
-4. กลับไปแท็บ **ทำนาย** แล้วลองวาดเลขเพื่อ inference
+4. สคริปต์จะบันทึกหลายไฟล์ใน `models/` และตั้งโมเดลที่ accuracy ดีสุดเป็น active
+5. กลับไปแท็บ **ทำนาย** แล้วลองวาดเลขเพื่อ inference หรือไปแท็บ **จัดการโมเดล** เพื่อสลับโมเดล
 
-สคริปต์ train จะอ่านรูปจาก `data/samples/<label>/*.png`, preprocess เป็นภาพ 28×28, train `KNeighborsClassifier`, บันทึกเป็น `models/thai_digit_knn.joblib`, และตั้งเป็น active model อัตโนมัติ
+สคริปต์ train จะอ่านรูปจาก `data/samples/<label>/*.png`, preprocess เป็นภาพ 28×28, train โมเดลเหล่านี้ แล้วบันทึกเป็น `.joblib`:
+
+- `KNN`
+- `SVM`
+- `Random Forest`
+- `Logistic Regression`
+- `MLP`
+
+ถ้าต้องการ train เฉพาะตัวเดียว:
+
+```bash
+python scripts/train_model.py --model knn
+python scripts/train_model.py --model svm
+python scripts/train_model.py --model random_forest
+python scripts/train_model.py --model logistic_regression
+python scripts/train_model.py --model mlp
+```
+
+ถ้าต้องการทดลอง train โดยไม่เขียนลง `models/`:
+
+```bash
+python scripts/train_model.py --output-dir /tmp/thai-digit-test-models
+```
+
+> เก็บ dataset แค่รอบเดียวพอ โมเดลทุกตัวใช้รูปจาก `data/samples/` ชุดเดียวกัน
 
 ---
 
