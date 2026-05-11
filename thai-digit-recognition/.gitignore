@@ -5,3 +5,6 @@ __pycache__/
 
 models/*
 !models/.gitkeep
+!models/active_model.json
+!models/*.joblib
+!models/*.joblib.json

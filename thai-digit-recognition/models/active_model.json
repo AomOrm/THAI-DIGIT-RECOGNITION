@@ -1,0 +1,9 @@
+{
+  "name": "thai_digit_svm.joblib",
+  "date": "2026-05-11",
+  "accuracy": 0.92,
+  "size": 12670,
+  "runnable": true,
+  "samples": 500,
+  "algorithm": "SVM"
+}
