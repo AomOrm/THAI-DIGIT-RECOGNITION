@@ -11,4 +11,4 @@ const ARABIC = {
 };
 
 // Number of samples to collect per class in the dataset collection tab
-const COLLECTION_TARGET = 50;
+const COLLECTION_TARGET = 100;
