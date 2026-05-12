@@ -1,9 +1,9 @@
 {
-  "name": "thai_digit_svm.joblib",
+  "name": "thai_digit_logistic_regression.joblib",
   "date": "2026-05-11",
-  "accuracy": 0.92,
-  "size": 12670,
+  "accuracy": 0.848,
+  "size": 32,
   "runnable": true,
   "samples": 500,
-  "algorithm": "SVM"
+  "algorithm": "Logistic Regression"
 }

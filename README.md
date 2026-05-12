@@ -2,53 +2,58 @@
 
 เว็บแอปสำหรับจดจำเลขไทยลายมือเขียนกลุ่ม `๑๖`, `๑๗`, `๑๘`, `๑๙`, `๒๐` โดยใช้ React ฝั่งหน้าเว็บ และ Python/FastAPI ฝั่ง backend สำหรับรับรูปจาก canvas, บันทึกตัวอย่าง, train โมเดล และทำนายผลจากโมเดลที่ active อยู่
 
-โปรเจกต์นี้ไม่มี `package.json` และไม่ต้องใช้ `npm install` เพราะ frontend ใช้ React, ReactDOM, Babel และ Tailwind ผ่าน CDN
+โปรเจกต์จริงอยู่ในโฟลเดอร์ `thai-digit-recognition/` ดังนั้นคำสั่งส่วนใหญ่ต้อง `cd` เข้าโฟลเดอร์นี้ก่อน
+
+```bash
+cd thai-digit-recognition
+```
 
 ## สิ่งที่ต้องมี
 
 - Python 3.10 ขึ้นไป แนะนำ Python 3.11 หรือ 3.12
 - `pip` สำหรับติดตั้ง dependencies
 - Browser เช่น Chrome, Edge, Firefox หรือ Safari
-- อินเทอร์เน็ตตอนเปิดหน้าเว็บครั้งแรก เพราะ frontend โหลด library และ font ผ่าน CDN
+- อินเทอร์เน็ตตอนเปิดหน้าเว็บครั้งแรก เพราะ frontend โหลด React, ReactDOM, Babel, Tailwind และ Google Fonts ผ่าน CDN
+
+โปรเจกต์นี้ไม่มี `package.json` และไม่ต้องใช้ `npm install` เพราะ frontend ใช้ CDN และ Babel Standalone ใน browser
 
 ## โครงสร้างโปรเจกต์
 
 ```text
-thai-digit-recognition/
-├── index.html              # หน้าเว็บหลัก โหลด React/JSX ผ่าน CDN
-├── requirements.txt        # Python dependencies
-├── backend/
-│   ├── app.py              # FastAPI app และ API endpoints
-│   ├── config.py           # path, classes, model suffix config
-│   ├── image_utils.py      # แปลงรูปจาก canvas เป็น feature 28x28
-│   └── model_store.py      # โหลด/บันทึก/สลับ active model
-├── scripts/
-│   └── train_model.py      # train KNN, SVM, Random Forest, Logistic Regression, MLP
-├── src/
-│   ├── App.jsx
-│   ├── constants.js
-│   ├── components/
-│   ├── pages/
-│   └── utils/api.js
-├── styles/
-│   └── main.css
-├── data/
-│   └── samples/            # รูปตัวอย่างที่เก็บจากหน้าเว็บ แยกตาม label
-├── models/                 # โมเดล .joblib และ active_model.json
-└── reports/                # รายงาน/กราฟผลการ train
+THAI-DIGIT-RECOGNITION/
+└── thai-digit-recognition/
+    ├── index.html              # หน้าเว็บหลัก โหลด React/JSX ผ่าน CDN
+    ├── requirements.txt        # Python dependencies
+    ├── backend/
+    │   ├── app.py              # FastAPI app และ API endpoints
+    │   ├── config.py           # path, classes, model suffix config
+    │   ├── image_utils.py      # แปลงรูปจาก canvas เป็น feature 28x28
+    │   └── model_store.py      # โหลด/บันทึก/สลับ active model
+    ├── scripts/
+    │   └── train_model.py      # train KNN, SVM, Random Forest, Logistic Regression, MLP
+    ├── src/
+    │   ├── App.jsx
+    │   ├── constants.js
+    │   ├── components/
+    │   ├── pages/
+    │   └── utils/api.js
+    ├── styles/
+    │   └── main.css
+    ├── data/
+    │   └── samples/            # รูปตัวอย่างที่เก็บจากหน้าเว็บ แยกตาม label
+    ├── models/                 # โมเดล .joblib และ active_model.json
+    └── reports/                # รายงาน/กราฟผลการ train
 ```
 
 ## วิธีรันแบบละเอียด
 
 ### 1. เข้าโฟลเดอร์โปรเจกต์
 
-ถ้าอยู่ที่ root repo ให้รัน:
+ถ้าอยู่ที่ root repo:
 
 ```bash
 cd thai-digit-recognition
 ```
-
-ถ้าเปิด terminal อยู่ในโฟลเดอร์นี้แล้ว ให้ข้ามขั้นตอนนี้ได้
 
 เช็กว่ามาถูกที่แล้ว:
 
@@ -113,7 +118,7 @@ http://127.0.0.1:8000
 
 เหตุผลที่ต้องเปิดผ่าน `uvicorn` คือ backend mount `index.html` และไฟล์ static ทั้งหมดผ่าน FastAPI ไว้แล้ว หน้าเว็บจึงเรียก API ด้วย path เช่น `/predict`, `/models`, `/save-sample` ได้ตรงๆ
 
-ห้ามเปิด `index.html` ด้วยการ double click โดยตรง เพราะ browser จะเปิดเป็น `file://...` ทำให้ JSX, path และ API call ทำงานไม่ครบ
+ห้ามเปิด `index.html` ด้วยการ double click โดยตรง เพราะ browser จะเปิดเป็น `file://...` ทำให้ JSX, module path และ API call ทำงานไม่ครบ
 
 ### 5. เช็กว่า backend ทำงาน
 
@@ -272,18 +277,6 @@ curl -X POST http://127.0.0.1:8000/models/activate \
   -d '{"name":"thai_digit_logistic_regression.joblib"}'
 ```
 
-## เพิ่ม Component ใหม่
-
-1. สร้างไฟล์ใน `src/components/YourComponent.jsx`
-2. เพิ่ม `<script type="text/babel" data-presets="react" src="src/components/YourComponent.jsx"></script>` ใน `index.html` ก่อน `src/App.jsx`
-3. ใช้ global `React` และ destructure hook ที่ต้องใช้ เช่น:
-
-```jsx
-const { useState, useEffect } = React;
-```
-
-ไฟล์ใน `index.html` ต้องเรียงลำดับให้ dependency ถูกต้อง เช่น constants และ API helpers ต้องโหลดก่อน component/page ที่เรียกใช้
-
 ## การปิด server
 
 กลับไปที่ terminal ที่รัน `uvicorn` แล้วกด:
@@ -358,22 +351,12 @@ http://127.0.0.1:8001
 - train ใหม่ด้วย `python scripts/train_model.py`
 - ลองสลับ active model ในแท็บ `จัดการโมเดล`
 
-## Tech Stack
-
-| เทคโนโลยี | เวอร์ชัน/รูปแบบ | หมายเหตุ |
-| --- | --- | --- |
-| React | 18.3.1 CDN UMD | ใช้ผ่าน global `React` |
-| ReactDOM | 18.3.1 CDN UMD | mount app ใน `src/App.jsx` |
-| Babel Standalone | 7.29.0 CDN | แปลง JSX ใน browser |
-| Tailwind CSS | CDN | config อยู่ใน `index.html` |
-| FastAPI | ดูใน `requirements.txt` | backend API |
-| scikit-learn | ดูใน `requirements.txt` | train/inference |
-
 ## คำสั่งสรุปสำหรับรันเร็ว
 
 ถ้าเคยติดตั้ง dependencies แล้ว:
 
 ```bash
+cd thai-digit-recognition
 source .venv/bin/activate
 uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 ```
@@ -387,6 +370,7 @@ http://127.0.0.1:8000
 ถ้ายังไม่เคย setup:
 
 ```bash
+cd thai-digit-recognition
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
