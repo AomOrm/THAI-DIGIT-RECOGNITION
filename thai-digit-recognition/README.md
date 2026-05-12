@@ -392,3 +392,16 @@ source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn backend.app:app --reload --host 127.0.0.1 --port 8000
 ```
+
+---
+
+## สมาชิกในกลุ่ม
+
+| ชื่อ | รหัสนักศึกษา | หน้าที่ |
+|------|--------------|---------|
+| นายชัยวัฒน์ บรรลือศักดิ์ | 1660704337 | Dev and Train Model AI |
+| นางสาวพัชราภรณ์ สกุลณีย์ | 1660705417 | Dev and Train Model AI |
+| นายพีรวุฒิ นุชเกิด | 1660707660 | Dev and Train Model AI |
+| นางสาวศุภมา สงิ้วงาม | 1660707231 | Dev and Train Model AI |
+| นางสาวพรรณปพร ลีลาเกียรติวงศ์ | 1660705177 | Presentation and Report |
+| นายชลนที ทัศนสนติ | 1660706423 | Presentation and Report |
